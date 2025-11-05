@@ -1,0 +1,87 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    container_name: hc_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: hc_user
+      POSTGRES_PASSWORD: hc_password
+      POSTGRES_DB: healthconnect
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    networks: [hc_net]
+
+  redis:
+    image: redis:7-alpine
+    container_name: hc_redis
+    restart: always
+    ports: ["6379:6379"]
+    networks: [hc_net]
+
+  user-service:
+    build: ./services/user-service
+    container_name: hc_user_service
+    restart: unless-stopped
+    environment:
+      PORT: 4001
+      PGHOST: postgres
+      PGUSER: hc_user
+      PGPASSWORD: hc_password
+      PGDATABASE: healthconnect
+      PGPORT: 5432
+      JWT_SECRET: supersecretjwt
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on: [postgres, redis]
+    ports: ["4001:4001"]
+    networks: [hc_net]
+
+  appointment-service:
+    build: ./services/appointment-service
+    container_name: hc_appointment_service
+    restart: unless-stopped
+    environment:
+      PORT: 4002
+      PGHOST: postgres
+      PGUSER: hc_user
+      PGPASSWORD: hc_password
+      PGDATABASE: healthconnect
+      PGPORT: 5432
+      JWT_SECRET: supersecretjwt
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on: [postgres, redis, user-service]
+    ports: ["4002:4002"]
+    networks: [hc_net]
+
+  ml-service:
+    build: ./services/ml-service
+    container_name: hc_ml_service
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      MODEL_PATH: /app/model/model.h5
+    depends_on: [user-service]
+    ports: ["5000:5000"]
+    networks: [hc_net]
+
+  frontend:
+    build: ./frontend
+    container_name: hc_frontend
+    restart: unless-stopped
+    environment:
+      VITE_USER_API_URL: http://localhost:4001
+      VITE_APPT_API_URL: http://localhost:4002
+    depends_on: [user-service, appointment-service, ml-service]
+    ports: ["3000:3000"]
+    networks: [hc_net]
+
+volumes:
+  pgdata:
+
+networks:
+  hc_net:
+    driver: bridge
