@@ -1,3 +1,12 @@
+## Project Scope & Disclaimer
+
+This repository showcases the **system architecture, microservices design, and DevOps workflow**
+of an AI-powered telemedicine platform.
+
+Some production-level components (e.g., trained ML models, environment secrets,
+and certain internal configurations) are intentionally excluded.
+The focus is on **engineering design, service interaction, and implementation quality**.
+
 # HealthConnect – AI-Powered Telemedicine Platform
 
 **Timeline:** Oct 2024 – Apr 2025  
