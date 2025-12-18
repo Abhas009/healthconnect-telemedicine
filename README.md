@@ -10,7 +10,9 @@ Advanced or production-level components (such as fully trained ML models, secret
 
 
 **Timeline:** Oct 2024 – Apr 2025  
-**Stack:** React, Node.js, Python, PostgreSQL, TensorFlow, Redis, JWT, Docker, GitHub Actions, Microservices, AWS-ready
+**Stack:** Tech Stack (Academic Use): React, Node.js, Python, PostgreSQL  
+Additional concepts explored: Authentication (JWT), caching (Redis), containerization basics (Docker), CI/CD concepts, and deployment readiness.
+
 
 ## Architecture
 - Microservices: `user-service` (auth/users), `appointment-service` (appointments), `ml-service` (TensorFlow FastAPI).
